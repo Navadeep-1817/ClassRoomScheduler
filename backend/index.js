@@ -17,18 +17,29 @@ const app = express();
 app.use(express.json());
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "https://class-room-scheduler.vercel.app",
-];
+  "http://localhost:5173",                          // Local development
+  "https://class-room-scheduler.vercel.app",      // Deployed frontend
+  process.env.FRONTEND_URL                          // From environment variable (if set)
+].filter(Boolean); // Remove any undefined/null values
 
 app.use(
   cors({
-    origin(origin, cb) {
-      // allow non-browser clients (Render health checks, curl, etc.)
-      if (!origin) return cb(null, true);
-      if (allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(new Error(`CORS blocked for origin: ${origin}`));
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, Postman, Render health checks)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin is in allowed list
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Reject other origins
+      console.error(`CORS blocked for origin: ${origin}`);
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
   })
 );
 
