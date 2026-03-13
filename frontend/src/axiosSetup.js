@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { API_BASE } from './config/api';
 
-axios.defaults.baseURL = API_BASE;
+// Components already include API_BASE in their requests 
+// (e.g. axios.post(`${API_BASE}/auth...`)), so we do not set baseURL here.
 axios.defaults.timeout = 15000;
 
 /**

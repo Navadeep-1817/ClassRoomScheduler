@@ -151,7 +151,7 @@ export default function Login() {
                     {[
                       { label: 'Admin',       user: 'admin',       pass: 'Admin@123'   },
                       { label: 'Coordinator', user: 'coord_cse',   pass: 'Coord@123'   },
-                      { label: 'Faculty',     user: 'fac_john',    pass: 'Faculty@123' },
+                      { label: 'Faculty',     user: 'fac_cse_1',    pass: 'Faculty@123' },
                       { label: 'Student',     user: 'stu_cse_01',  pass: 'Student@123' },
                     ].map(({ label, user, pass }) => (
                       <button

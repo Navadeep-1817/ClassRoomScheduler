@@ -139,13 +139,14 @@ async function seedUsers() {
   const createdUsers = [];
   
   for (const userData of demoUsers) {
-    const existingUser = await User.findOne({ username: userData.username });
-    
-    if (existingUser) {
-      console.log(`  ✓ ${userData.username} (${userData.role}) exists`);
-      createdUsers.push({ user: existingUser, data: userData });
-      continue;
-    }
+    // No need to check for existing as we clear Db
+    // const existingUser = await User.findOne({ username: userData.username });
+    // 
+    // if (existingUser) {
+    //   console.log(`  ✓ ${userData.username} (${userData.role}) exists`);
+    //   createdUsers.push({ user: existingUser, data: userData });
+    //   continue;
+    // }
 
     const user = await User.create({
       username: userData.username,
@@ -183,13 +184,13 @@ async function seedClassrooms() {
   const createdClassrooms = [];
   
   for (const roomData of classrooms) {
-    const existing = await Classroom.findOne({ roomNumber: roomData.roomNumber });
-    
-    if (existing) {
-      console.log(`  ✓ Classroom ${roomData.roomNumber} exists`);
-      createdClassrooms.push(existing);
-      continue;
-    }
+    // const existing = await Classroom.findOne({ roomNumber: roomData.roomNumber });
+    // 
+    // if (existing) {
+    //   console.log(`  ✓ Classroom ${roomData.roomNumber} exists`);
+    //   createdClassrooms.push(existing);
+    //   continue;
+    // }
 
     const classroom = await Classroom.create(roomData);
     console.log(`  ✓ Created classroom ${roomData.roomNumber}`);
@@ -217,13 +218,13 @@ async function seedCourses(facultyUsers) {
                  template.courseCode.substring(0, 2) === "EE" ? "EEE" :
                  template.courseCode.substring(0, 2) === "IT" ? "IT" : "CSE";
     
-    const existing = await Course.findOne({ courseCode: template.courseCode });
-    
-    if (existing) {
-      console.log(`  ✓ Course ${template.courseCode} exists`);
-      createdCourses.push(existing);
-      continue;
-    }
+    // const existing = await Course.findOne({ courseCode: template.courseCode });
+    // 
+    // if (existing) {
+    //   console.log(`  ✓ Course ${template.courseCode} exists`);
+    //   createdCourses.push(existing);
+    //   continue;
+    // }
 
     // Assign to a random faculty from the department
     const deptFaculty = facultyByDept[dept];
@@ -270,16 +271,16 @@ async function seedSchedules(courses, classrooms) {
       continue;
     }
 
-    const existing = await Schedule.findOne({
-      course: course._id,
-      date: sched.date,
-      timeSlot: sched.timeSlot
-    });
-
-    if (existing) {
-      console.log(`  ✓ Schedule for ${sched.courseCode} on ${sched.day} exists`);
-      continue;
-    }
+    // const existing = await Schedule.findOne({
+    //   course: course._id,
+    //   date: sched.date,
+    //   timeSlot: sched.timeSlot
+    // });
+    //
+    // if (existing) {
+    //   console.log(`  ✓ Schedule for ${sched.courseCode} on ${sched.day} exists`);
+    //   continue;
+    // }
 
     // Find faculty for this course department
     const faculty = await Faculty.findOne({ department: course.department });
@@ -317,6 +318,17 @@ async function seedAllData() {
     console.log("Connecting to MongoDB...");
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ MongoDB Connected");
+
+    console.log("🗑️ Clearing all collections...");
+    await Promise.all([
+      User.deleteMany({}),
+      Faculty.deleteMany({}),
+      Student.deleteMany({}),
+      Classroom.deleteMany({}),
+      Course.deleteMany({}),
+      Schedule.deleteMany({})
+    ]);
+    console.log("✅ Collections cleared");
 
     // Seed all data
     const users = await seedUsers();
