@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import {
   PlusCircleIcon,
   ExclamationTriangleIcon,
@@ -31,12 +32,15 @@ export default function TimetableManagement() {
   useEffect(() => {
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     Promise.all([
-      axios.get('http://localhost:5000/api/courses',    { headers }),
-      axios.get('http://localhost:5000/api/faculty',    { headers }),
-      axios.get('http://localhost:5000/api/classrooms', { headers }),
+      axios.get(`${API_BASE}/courses`,    { headers }),
+      axios.get(`${API_BASE}/faculty`,    { headers }),
+      axios.get(`${API_BASE}/classrooms`, { headers }),
     ]).then(([cr, fr, clr]) => {
       setCourses(cr.data); setFaculty(fr.data); setClassrooms(clr.data);
-    }).catch(console.error);
+    }).catch((err) => {
+      console.error(err);
+      setError('Failed to load master data (courses/faculty/classrooms). Please try again later.');
+    });
   }, []);
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -46,7 +50,7 @@ export default function TimetableManagement() {
     setError(''); setSuccess(''); setSuggestions(null); setLoading(true);
     try {
       const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-      await axios.post('http://localhost:5000/api/schedules', form, { headers });
+      await axios.post(`${API_BASE}/schedules`, form, { headers });
       setSuccess('Schedule created successfully!');
       setForm(p => ({ ...p, course: '', faculty: '', classroom: '', date: '', timeSlot: '' }));
     } catch (err) {

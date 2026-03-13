@@ -8,7 +8,12 @@ const Classroom = require("./models/Classroom");
 const Schedule = require("./models/Schedule");
 const Notification = require("./models/Notification");
 
-mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smart_scheduler")
+if (!process.env.MONGO_URI) {
+  console.error("Missing MONGO_URI. Set it in backend environment variables.");
+  process.exit(1);
+}
+
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => { console.error(err); process.exit(1); });
 

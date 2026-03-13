@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import {
   CalendarDaysIcon,
   ClockIcon,
@@ -8,12 +9,13 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api';
+const API = `${API_BASE}`;
 
 export default function FacultyDashboard() {
   const [schedules, setSchedules] = useState([]);
   const [classrooms, setClassrooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   
   const [showModal, setShowModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
@@ -32,7 +34,10 @@ export default function FacultyDashboard() {
       setSchedules(sr.data);
       setClassrooms(cr.data);
       if (cr.data.length > 0) setReqData(prev => ({ ...prev, proposedRoom: cr.data[0]._id }));
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch((err) => {
+      console.error(err);
+      setError('Failed to load faculty schedule. Please try again later.');
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleRescheduleSubmit = async (e) => {
@@ -116,6 +121,7 @@ export default function FacultyDashboard() {
           </div>
           <div className="space-y-3">
             {loading ? <p className="text-slate-400 text-sm">Loading…</p>
+              : error ? <p className="text-red-500 text-sm">{error}</p>
               : upcoming.length
                 ? upcoming.map(s => <ClassCard key={s._id} s={s} variant="upcoming" />)
                 : <p className="text-slate-400 text-sm text-center py-6">No upcoming classes.</p>}
@@ -132,6 +138,7 @@ export default function FacultyDashboard() {
           </div>
           <div className="space-y-3">
             {loading ? <p className="text-slate-400 text-sm">Loading…</p>
+              : error ? <p className="text-red-500 text-sm">{error}</p>
               : past.length
                 ? past.map(s => <ClassCard key={s._id} s={s} variant="past" />)
                 : <p className="text-slate-400 text-sm text-center py-6">No past classes recorded.</p>}

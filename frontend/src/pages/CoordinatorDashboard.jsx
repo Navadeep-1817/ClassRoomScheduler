@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import { Link } from 'react-router-dom';
 import {
   UsersIcon,
@@ -11,7 +12,7 @@ import {
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api';
+const API = `${API_BASE}`;
 
 export default function CoordinatorDashboard() {
   const [courses, setCourses] = useState([]);

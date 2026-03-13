@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from './config/api';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import CoordinatorDashboard from './pages/CoordinatorDashboard';
@@ -46,7 +47,7 @@ export default function App() {
     }
 
     // Validate the stored token is still accepted by the backend
-    axios.get('http://localhost:5000/api/schedules', {
+    axios.get(`${API_BASE}/schedules`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(() => {
       setUser(JSON.parse(stored));

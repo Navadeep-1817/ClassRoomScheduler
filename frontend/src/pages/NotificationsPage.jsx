@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import {
   BellIcon,
   PlusCircleIcon,
@@ -12,7 +13,7 @@ import {
   ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api';
+const API = `${API_BASE}`;
 const DEPARTMENTS = ['ALL', 'CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT'];
 
 const notifStyle = {

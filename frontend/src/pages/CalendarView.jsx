@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import { ClockIcon, BuildingOfficeIcon, UserIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -17,25 +18,29 @@ const PILL_COLORS = [
 export default function CalendarView() {
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
     // Faculty needs facultyId; Student and others just hit the base endpoint
     // (backend already filters by dept for Coordinator/Student, returns all for Admin)
     const endpoint = user?.role === 'Faculty'
-      ? `http://localhost:5000/api/schedules?facultyId=${user.facultyId}`
-      : 'http://localhost:5000/api/schedules';
+      ? `${API_BASE}/schedules?facultyId=${user.facultyId}`
+      : `${API_BASE}/schedules`;
 
     axios.get(endpoint, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    }).then(r => setSchedules(r.data)).catch(console.error).finally(() => setLoading(false));
+    }).then(r => setSchedules(r.data)).catch((err) => {
+      console.error(err);
+      setError('Failed to load calendar. Please try again later.');
+    }).finally(() => setLoading(false));
   }, []);
 
   const handleExport = async () => {
     try {
       const endpoint = user?.role === 'Faculty'
-        ? `http://localhost:5000/api/schedules/export?facultyId=${user.facultyId}`
-        : 'http://localhost:5000/api/schedules/export';
+        ? `${API_BASE}/schedules/export?facultyId=${user.facultyId}`
+        : `${API_BASE}/schedules/export`;
 
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -74,6 +79,8 @@ export default function CalendarView() {
 
       {loading ? (
         <p className="text-slate-400">Loading schedule…</p>
+      ) : error ? (
+        <p className="text-red-500 text-sm">{error}</p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4">
           {DAYS.map((day, idx) => {

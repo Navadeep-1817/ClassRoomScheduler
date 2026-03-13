@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import { ArrowUpTrayIcon, DocumentTextIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api/import';
+const API = `${API_BASE}/import`;
 
 export default function BulkImport() {
   const [studentFile, setStudentFile] = useState(null);

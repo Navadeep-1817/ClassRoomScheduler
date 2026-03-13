@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import {
   CalendarDaysIcon,
   BellIcon,
@@ -13,7 +14,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api';
+const API = `${API_BASE}`;
 
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -32,6 +33,7 @@ export default function StudentDashboard() {
   const [schedules, setSchedules]       = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading]           = useState(true);
+  const [error, setError]               = useState('');
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
@@ -42,7 +44,10 @@ export default function StudentDashboard() {
     ]).then(([sr, nr]) => {
       setSchedules(sr.data);
       setNotifications(nr.data);
-    }).catch(console.error).finally(() => setLoading(false));
+    }).catch((err) => {
+      console.error(err);
+      setError('Failed to load timetable data. Please try again later.');
+    }).finally(() => setLoading(false));
   }, []);
 
   // Today's classes
@@ -96,6 +101,8 @@ export default function StudentDashboard() {
 
         {loading ? (
           <p className="text-slate-400 text-sm">Loading…</p>
+        ) : error ? (
+          <p className="text-red-500 text-sm">{error}</p>
         ) : todayClasses.length === 0 ? (
           <div className="text-center py-8">
             <CheckCircleIcon className="w-12 h-12 text-emerald-400 mx-auto mb-2" />

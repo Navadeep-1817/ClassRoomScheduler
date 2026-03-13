@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import {
   BuildingOfficeIcon,
   UsersIcon,
@@ -18,11 +19,18 @@ const statConfig = [
 export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/admin/dashboard', {
+    axios.get(`${API_BASE}/admin/dashboard`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    }).then(r => setStats(r.data)).catch(console.error).finally(() => setLoading(false));
+    })
+      .then(r => setStats(r.data))
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to load admin dashboard stats. Please try again later.');
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   return (
@@ -42,7 +50,7 @@ export default function AdminDashboard() {
             <div>
               <p className="text-slate-500 text-xs font-medium">{label}</p>
               <p className="text-3xl font-bold text-slate-800 leading-none mt-1">
-                {loading ? '—' : (stats?.[key] ?? 0)}
+                {loading ? '—' : error ? '!' : (stats?.[key] ?? 0)}
               </p>
             </div>
           </div>
@@ -58,6 +66,8 @@ export default function AdminDashboard() {
 
         {loading ? (
           <p className="text-slate-400 text-sm">Loading…</p>
+        ) : error ? (
+          <p className="text-red-500 text-sm">{error}</p>
         ) : stats?.departmentSchedules?.length ? (
           <table className="w-full text-sm">
             <thead>

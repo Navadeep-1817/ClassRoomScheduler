@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../config/api';
 import { useNavigate } from 'react-router-dom';
 import {
   AcademicCapIcon,
@@ -11,7 +12,7 @@ import {
   CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 
-const API = 'http://localhost:5000/api/auth';
+const API = `${API_BASE}/auth`;
 
 export default function Login() {
   const [tab, setTab] = useState('login'); // 'login' | 'register'
