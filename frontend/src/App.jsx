@@ -8,6 +8,7 @@ import StudentDashboard from './pages/StudentDashboard';
 import TimetableManagement from './pages/TimetableManagement';
 import CalendarView from './pages/CalendarView';
 import NotificationsPage from './pages/NotificationsPage';
+import BulkImport from './pages/BulkImport';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 
@@ -32,10 +33,30 @@ const AppLayout = ({ children }) => (
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
+
   useEffect(() => {
     const stored = localStorage.getItem('user');
-    if (stored) setUser(JSON.parse(stored));
+    const token  = localStorage.getItem('token');
+
+    if (!stored || !token) {
+      setChecking(false);
+      return;
+    }
+
+    // Validate the stored token is still accepted by the backend
+    axios.get('http://localhost:5000/api/schedules', {
+      headers: { Authorization: `Bearer ${token}` }
+    }).then(() => {
+      setUser(JSON.parse(stored));
+    }).catch(() => {
+      // Token invalid / expired / user deleted — wipe and redirect to login
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }).finally(() => setChecking(false));
   }, []);
+
+  if (checking) return null; // Blank screen for <300ms while validating
 
   return (
     <Router>
@@ -75,6 +96,12 @@ export default function App() {
         <Route path="/calendar" element={
           <PrivateRoute allowedRoles={['Admin', 'Coordinator', 'Faculty', 'Student']}>
             <AppLayout><CalendarView /></AppLayout>
+          </PrivateRoute>
+        } />
+
+        <Route path="/import" element={
+          <PrivateRoute allowedRoles={['Admin', 'Coordinator']}>
+            <AppLayout><BulkImport /></AppLayout>
           </PrivateRoute>
         } />
 

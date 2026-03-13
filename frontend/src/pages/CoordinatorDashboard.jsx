@@ -1,28 +1,52 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import {
   UsersIcon,
   BookOpenIcon,
   PlusCircleIcon,
   AcademicCapIcon,
+  ArrowPathRoundedSquareIcon,
+  CheckIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
+
+const API = 'http://localhost:5000/api';
 
 export default function CoordinatorDashboard() {
   const [courses, setCourses] = useState([]);
   const [faculty, setFaculty] = useState([]);
+  const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = () => {
+    setLoading(true);
     const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     Promise.all([
-      axios.get('http://localhost:5000/api/courses', { headers }),
-      axios.get('http://localhost:5000/api/faculty', { headers }),
-    ]).then(([cr, fr]) => {
+      axios.get(`${API}/courses`, { headers }),
+      axios.get(`${API}/faculty`, { headers }),
+      axios.get(`${API}/reschedules`, { headers })
+    ]).then(([cr, fr, rq]) => {
       setCourses(cr.data);
       setFaculty(fr.data);
+      setRequests(rq.data);
     }).catch(console.error).finally(() => setLoading(false));
-  }, []);
+  };
+
+  const handleRequest = async (id, status) => {
+    try {
+      const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
+      await axios.patch(`${API}/reschedules/${id}`, { status }, { headers });
+      fetchData(); // reload
+    } catch (err) {
+      alert(`Error updating request: ${err.response?.data?.message || err.message}`);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -33,12 +57,12 @@ export default function CoordinatorDashboard() {
           </h2>
           <p className="text-slate-500 text-sm">Coordinator overview for your department</p>
         </div>
-        <a
-          href="/timetable"
+        <Link
+          to="/timetable"
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition shadow-sm"
         >
           <PlusCircleIcon className="w-4 h-4" /> New Schedule
-        </a>
+        </Link>
       </div>
 
       {/* Quick Stats */}
@@ -63,8 +87,44 @@ export default function CoordinatorDashboard() {
         </div>
       </div>
 
+      {/* Reschedule Requests */}
+      <div className="card border-l-4 border-l-amber-500">
+        <div className="flex items-center gap-2 mb-4">
+          <ArrowPathRoundedSquareIcon className="w-5 h-5 text-amber-500" />
+          <h3 className="font-semibold text-slate-800">Pending Reschedule Requests</h3>
+          <span className="badge bg-amber-50 text-amber-700 ml-auto">
+            {requests.filter(r => r.status === 'Pending').length} Pending
+          </span>
+        </div>
+        {loading ? <p className="text-slate-400 text-sm">Loading…</p> : (
+          <div className="space-y-3">
+            {requests.filter(r => r.status === 'Pending').map(r => (
+              <div key={r._id} className="flex flex-col sm:flex-row gap-4 justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">{r.schedule?.course?.courseCode} - {r.faculty?.name}</p>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Moved to: <strong>{new Date(r.proposedDate).toLocaleDateString()}</strong> at <strong>{r.proposedTimeSlot}</strong> in Room <strong>{r.proposedRoom?.roomNumber}</strong>
+                  </p>
+                  <p className="text-xs italic text-slate-400 mt-1">"{r.reason}"</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => handleRequest(r._id, 'Approved')} className="p-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded-lg" title="Approve">
+                    <CheckIcon className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => handleRequest(r._id, 'Rejected')} className="p-2 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-lg" title="Reject">
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {requests.filter(r => r.status === 'Pending').length === 0 && (
+              <p className="text-sm text-slate-400">No pending requests.</p>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Faculty Table */}
         <div className="card">
           <div className="flex items-center gap-2 mb-5">
             <AcademicCapIcon className="w-5 h-5 text-indigo-500" />
@@ -92,7 +152,6 @@ export default function CoordinatorDashboard() {
           )}
         </div>
 
-        {/* Courses Table */}
         <div className="card">
           <div className="flex items-center gap-2 mb-5">
             <BookOpenIcon className="w-5 h-5 text-indigo-500" />

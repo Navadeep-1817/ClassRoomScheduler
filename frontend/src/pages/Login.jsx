@@ -42,7 +42,12 @@ export default function Login() {
       localStorage.setItem('user', JSON.stringify(res.data));
       redirect(res.data.role);
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials.');
+      const status = err.response?.status;
+      if (status === 401) {
+        setError('Invalid credentials. Use the demo accounts shown below.');
+      } else {
+        setError(err.response?.data?.message || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -136,6 +141,29 @@ export default function Login() {
             {/* LOGIN FORM */}
             {tab === 'login' && (
               <form onSubmit={handleLogin} className="space-y-4">
+                {/* Demo credential chips */}
+                <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                  <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide mb-2">Demo Accounts</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: 'Admin',       user: 'admin',       pass: 'Admin@123'   },
+                      { label: 'Coordinator', user: 'coord_cse',   pass: 'Coord@123'   },
+                      { label: 'Faculty',     user: 'fac_john',    pass: 'Faculty@123' },
+                      { label: 'Student',     user: 'stu_alice',   pass: 'Student@123' },
+                    ].map(({ label, user, pass }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => setLoginData({ username: user, password: pass })}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-medium transition border border-indigo-100"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-2">Click a role to auto-fill credentials</p>
+                </div>
+
                 <div>
                   <label className="form-label">Username</label>
                   <div className="relative">

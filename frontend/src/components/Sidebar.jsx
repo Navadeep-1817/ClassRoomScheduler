@@ -7,6 +7,8 @@ import {
   ClockIcon,
   BellIcon,
   AcademicCapIcon,
+  ArrowUpTrayIcon, // Added ArrowUpTrayIcon
+  CogIcon, // Added CogIcon as per instruction for Manage Timetable
 } from '@heroicons/react/24/outline';
 
 export default function Sidebar() {
@@ -66,9 +68,14 @@ export default function Sidebar() {
 
         {/* Manage Timetable — Admin/Coordinator only */}
         {isAdminOrCoord && (
-          <NavLink to="/timetable" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-            <TableCellsIcon className="w-5 h-5" /> Manage Timetable
-          </NavLink>
+          <>
+            <NavLink to="/timetable" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <TableCellsIcon className="w-5 h-5" /> Manage Timetable
+            </NavLink>
+            <NavLink to="/import" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+              <ArrowUpTrayIcon className="w-5 h-5" /> Bulk Import
+            </NavLink>
+          </>
         )}
 
         {/* Calendar — everyone */}

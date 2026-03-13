@@ -10,6 +10,8 @@ const courseRoutes = require("./routes/courseRoutes");
 const classroomRoutes = require("./routes/classroomRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const importRoutes = require("./routes/importRoutes");
+const rescheduleRoutes = require("./routes/rescheduleRoutes");
 
 const app = express();
 app.use(express.json());
@@ -23,6 +25,8 @@ app.use("/api/courses", courseRoutes);
 app.use("/api/classrooms", classroomRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/import", importRoutes);
+app.use("/api/reschedules", rescheduleRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/smart_scheduler")

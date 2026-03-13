@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { ClockIcon, BuildingOfficeIcon, UserIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, BuildingOfficeIcon, UserIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 // Mon=1, Tue=2, ..., Sat=6 (matches JS getDay())
@@ -31,13 +31,45 @@ export default function CalendarView() {
     }).then(r => setSchedules(r.data)).catch(console.error).finally(() => setLoading(false));
   }, []);
 
+  const handleExport = async () => {
+    try {
+      const endpoint = user?.role === 'Faculty'
+        ? `http://localhost:5000/api/schedules/export?facultyId=${user.facultyId}`
+        : 'http://localhost:5000/api/schedules/export';
+
+      const response = await axios.get(endpoint, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        responseType: 'blob', // crucial for file downloads
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'timetable.ics');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error('Error downloading calendar:', err);
+      alert('Failed to export calendar. Please try again.');
+    }
+  };
+
   const forDay = (dayNum) => schedules.filter(s => new Date(s.date).getDay() === dayNum);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-800">Weekly Calendar</h2>
-        <p className="text-slate-500 text-sm">All scheduled classes by day of the week</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Weekly Calendar</h2>
+          <p className="text-slate-500 text-sm">All scheduled classes by day of the week</p>
+        </div>
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm transition self-start sm:self-auto"
+        >
+          <ArrowDownTrayIcon className="w-4 h-4" /> Export to Calendar Flow (.ics)
+        </button>
       </div>
 
       {loading ? (

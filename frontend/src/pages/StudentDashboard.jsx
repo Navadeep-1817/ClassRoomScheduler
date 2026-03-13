@@ -33,9 +33,9 @@ export default function StudentDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading]           = useState(true);
   const user = JSON.parse(localStorage.getItem('user'));
-  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
 
   useEffect(() => {
+    const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
     Promise.all([
       axios.get(`${API}/schedules`, { headers }),
       axios.get(`${API}/notifications`, { headers }),
