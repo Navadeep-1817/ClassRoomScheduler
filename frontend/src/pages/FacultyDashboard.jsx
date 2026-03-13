@@ -118,7 +118,7 @@ export default function FacultyDashboard() {
             {loading ? <p className="text-slate-400 text-sm">Loading…</p>
               : upcoming.length
                 ? upcoming.map(s => <ClassCard key={s._id} s={s} variant="upcoming" />)
-                : <p className="text-slate-400 text-sm text-center py-6">No upcoming classes 🎉</p>}
+                : <p className="text-slate-400 text-sm text-center py-6">No upcoming classes.</p>}
           </div>
         </div>
 

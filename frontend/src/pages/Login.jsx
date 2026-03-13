@@ -7,6 +7,8 @@ import {
   UserCircleIcon,
   ArrowRightIcon,
   ClockIcon,
+  ShieldCheckIcon,
+  CalendarDaysIcon,
 } from '@heroicons/react/24/outline';
 
 const API = 'http://localhost:5000/api/auth';
@@ -90,12 +92,12 @@ export default function Login() {
 
           <div className="mt-10 space-y-4">
             {[
-              { icon: '🛡️', label: 'Automatic Conflict Detection' },
-              { icon: '📅', label: 'Weekly Calendar View' },
-              { icon: '🎓', label: 'Role-based Access Control' },
+              { icon: <ShieldCheckIcon className="w-5 h-5 text-indigo-400" />, label: 'Automatic Conflict Detection' },
+              { icon: <CalendarDaysIcon className="w-5 h-5 text-indigo-400" />, label: 'Weekly Calendar View' },
+              { icon: <AcademicCapIcon className="w-5 h-5 text-indigo-400" />, label: 'Role-based Access Control' },
             ].map(f => (
               <div key={f.label} className="flex items-center gap-3 text-sm text-slate-300">
-                <span className="text-xl">{f.icon}</span> {f.label}
+                {f.icon} {f.label}
               </div>
             ))}
           </div>
@@ -149,7 +151,7 @@ export default function Login() {
                       { label: 'Admin',       user: 'admin',       pass: 'Admin@123'   },
                       { label: 'Coordinator', user: 'coord_cse',   pass: 'Coord@123'   },
                       { label: 'Faculty',     user: 'fac_john',    pass: 'Faculty@123' },
-                      { label: 'Student',     user: 'stu_alice',   pass: 'Student@123' },
+                      { label: 'Student',     user: 'stu_cse_01',  pass: 'Student@123' },
                     ].map(({ label, user, pass }) => (
                       <button
                         key={label}

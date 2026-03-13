@@ -28,11 +28,11 @@ export default function BulkImport() {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
-      setMessage(`✅ ${res.data.message}`);
+      setMessage(`SUCCESS: ${res.data.message}`);
       if (type === 'students') setStudentFile(null);
       if (type === 'courses') setCourseFile(null);
     } catch (err) {
-      setMessage(`❌ Error: ${err.response?.data?.message || err.message}`);
+      setMessage(`ERROR: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function BulkImport() {
       </div>
 
       {message && (
-        <div className={`px-4 py-3 rounded-xl border font-medium ${message.startsWith('✅') ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+        <div className={`px-4 py-3 rounded-xl border font-medium ${message.startsWith('SUCCESS:') ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
           {message}
         </div>
       )}

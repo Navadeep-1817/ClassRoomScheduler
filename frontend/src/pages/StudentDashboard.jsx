@@ -98,7 +98,7 @@ export default function StudentDashboard() {
           <p className="text-slate-400 text-sm">Loading…</p>
         ) : todayClasses.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-4xl mb-2">🎉</p>
+            <CheckCircleIcon className="w-12 h-12 text-emerald-400 mx-auto mb-2" />
             <p className="text-slate-400 font-medium">No classes today!</p>
           </div>
         ) : (

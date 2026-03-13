@@ -6,6 +6,10 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
   InformationCircleIcon,
+  UsersIcon,
+  UserIcon,
+  AcademicCapIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline';
 
 const API = 'http://localhost:5000/api';
@@ -25,7 +29,7 @@ const NotifIcon = ({ type }) => {
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading]             = useState(true);
-  const [form, setForm] = useState({ message: '', type: 'info', department: 'ALL' });
+  const [form, setForm] = useState({ message: '', type: 'info', department: 'ALL', targetAudience: 'All' });
   const [posting, setPosting]   = useState(false);
   const [success, setSuccess]   = useState('');
   const [error, setError]       = useState('');
@@ -50,7 +54,7 @@ export default function NotificationsPage() {
     try {
       await axios.post(`${API}/notifications`, form, { headers });
       setSuccess('Notification sent!');
-      setForm({ message: '', type: 'info', department: user?.role === 'Coordinator' ? user.department : 'ALL' });
+      setForm({ message: '', type: 'info', department: user?.role === 'Coordinator' ? user.department : 'ALL', targetAudience: 'All' });
       load();
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to send notification.');
@@ -98,13 +102,23 @@ export default function NotificationsPage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="form-label">Type</label>
-                <select className="input-field" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
-                  <option value="info">ℹ️ Info</option>
-                  <option value="warning">⚠️ Warning</option>
-                  <option value="success">✅ Success</option>
+                <select className="input-field pl-2" value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}>
+                  <option value="info">Info</option>
+                  <option value="warning">Warning</option>
+                  <option value="success">Success</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label">Target Audience</label>
+                <select className="input-field pl-2" value={form.targetAudience} onChange={e => setForm({ ...form, targetAudience: e.target.value })}>
+                  <option value="All">All (Faculty & Students)</option>
+                  {user?.role === 'Admin' && <option value="Coordinator">Coordinators Only</option>}
+                  <option value="Faculty">Faculty Only</option>
+                  <option value="Student">Students Only</option>
                 </select>
               </div>
 
@@ -113,8 +127,8 @@ export default function NotificationsPage() {
                 {user?.role === 'Coordinator' ? (
                   <input className="input-field bg-slate-50 cursor-not-allowed" value={user.department} readOnly />
                 ) : (
-                  <select className="input-field" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })}>
-                    {DEPARTMENTS.map(d => <option key={d} value={d}>{d === 'ALL' ? '🌐 All Departments' : d}</option>)}
+                  <select className="input-field pl-2" value={form.department} onChange={e => setForm({ ...form, department: e.target.value })}>
+                    {DEPARTMENTS.map(d => <option key={d} value={d}>{d === 'ALL' ? 'All Departments' : d}</option>)}
                   </select>
                 )}
               </div>
@@ -155,7 +169,12 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
                       <p className={`text-sm font-medium leading-snug ${style.text}`}>{n.message}</p>
-                      <span className={`badge shrink-0 ${style.badge}`}>{n.department}</span>
+                      <div className="flex flex-col gap-1 items-end shrink-0">
+                        <span className={`badge ${style.badge}`}>{n.department}</span>
+                        {n.targetAudience && n.targetAudience !== 'All' && (
+                          <span className="badge bg-slate-100 text-slate-600 border border-slate-200 text-[10px]">{n.targetAudience} Only</span>
+                        )}
+                      </div>
                     </div>
                     <p className="text-xs text-slate-400 mt-1.5">
                       {n.createdBy?.username || 'System'} ·{' '}
